@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import './App.css'
+import { FaCartShopping } from "react-icons/fa6";
+import { IoCartOutline } from "react-icons/io5";
 
 const products = [
     { id: 1, name: 'Áo thun trắng', price: 150000, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab' },
@@ -16,15 +19,70 @@ const products = [
 ];
 
 function App() {
+  const [openCart, setOpenCart] = useState(false)
+  const [choosenProducts, setChoosenProducts] = useState([])
+  const handleAddCart = (product) => {
+    setChoosenProducts((prevItems) => {
+      const existItemID = prevItems.findIndex((item) => item.id === product.id)
 
+      if(existItemID === -1){
+        return [...prevItems, { ...product, quantity: 1 }]
+      }
+      else{
+        const updateItems = [...prevItems]
+        updateItems[existItemID] = {
+          ...updateItems[existItemID],
+          quantity: updateItems[existItemID].quantity + 1
+        }
+        return updateItems
+      }
+    })
+  }
   return (
     <main>
+      <div className='header'>
+        <button className='cart-btn' onClick={() => setOpenCart(!openCart)}>
+          <span className='cart-counter'>{choosenProducts.length}</span>
+          <span>Giỏ hàng</span>
+          <IoCartOutline className='cart-icon'/>
+        </button>
+        {
+          openCart === true ? 
+          <div className='cart-dropdown'>
+            {
+              choosenProducts ?
+                choosenProducts.map((item) => {
+                  return (
+                    <div className='cart-item'>
+                      <img className='cart-item-img' src={item.image}/>
+                      <div className='cart-item-text'>
+                        <p className='cart-item-name'>{item.name}</p>
+                        <p className='cart-item-price'>Thành tiền: {item.price.toLocaleString()} x {item.quantity} = {(item.price * item.quantity).toLocaleString()} VND</p>
+                      </div>
+                      
+                    </div>
+                  )
+                })
+              :
+              <></>
+            }
+          </div>
+          :
+          <></>
+        }
+        
+      </div>
       <div className="container">
           {products.map((item) => (
-              <div key={item.id}>
-                  <img src={item.image} alt={item.name} title={item.name} width={300}/>
-                  <p>{item.name}</p>
-                  <p>{item.price}</p>
+              <div key={item.id} className='item'>
+                  <img className="item-img" src={item.image} alt={item.name} title={item.name} width={300}/>
+                  <div className='info'>
+                    <div className='info-text'>
+                      <p className='info-name'>{item.name}</p>
+                      <p className='info-price'>{item.price.toLocaleString()} VND</p>
+                    </div>
+                    <button className='info-icon' onClick={() => handleAddCart(item)}><FaCartShopping /></button>
+                  </div>
               </div>
           ))}
       </div>
